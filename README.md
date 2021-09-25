@@ -1,6 +1,6 @@
 # kmap
 
-Small bwa wrapper to map (perfectly) a set of kmers against a reference genome.
+Small [bwa](https://github.com/lh3/bwa) wrapper to map (perfectly) a set of kmers against a reference genome.
 
 ### Download and installation
 ```
@@ -30,6 +30,6 @@ kmap map -h
 # Mapping from fasta/q (fx mode)
 ./kmap map -k 23 -f 1 data/dros.4.fa data/query.k23.fa > fa.bed
 ./kmap map -k 23 -f 1 data/dros.4.fa data/query.k23.fq > fq.bed
-# Mapping from KMC databse (kmc mode)
+# Mapping from KMC database (kmc mode)
 ./kmap map -k 23 -f 1 data/dros.4.fa data/query.k23 > kmc.bed
 ```
