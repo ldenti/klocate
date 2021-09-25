@@ -31,5 +31,5 @@ kmap map -h
 ./kmap map -k 23 -f 1 data/dros.4.fa data/query.k23.fa > fa.bed
 ./kmap map -k 23 -f 1 data/dros.4.fa data/query.k23.fq > fq.bed
 # Mapping from KMC database (kmc mode)
-./kmap map -k 23 -f 1 data/dros.4.fa data/query.k23 > kmc.bed
+./kmap map -k 23 -f 2 data/dros.4.fa data/query.k23 > kmc.bed
 ```
