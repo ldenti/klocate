@@ -4,3 +4,4 @@
 [submodule "KMC"]
 	path = KMC
 	url = https://github.com/refresh-bio/KMC.git
+	ignore = "dirty"

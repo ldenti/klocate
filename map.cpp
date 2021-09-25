@@ -18,8 +18,8 @@ using namespace std;
 static const char *MAP_USAGE_MESSAGE =
     "Usage: kmap map [-h] -k <klen> -f <0|1|2> <reference.fa> <query>\n"
     "\n"
-    "      -k, --klen                        k-mer size\n"
-    "      -f, --format                      input file format (0: txt; 1: fx; 2: kmc)\n"
+    "      -k, --klen                        k-mer size (default: 23)\n"
+    "      -f, --format                      input file format (0: txt mode; 1: fx mode; 2: kmc mode; default: 0)\n"
     "      -h, --help                        display this help and exit\n"
     // "      -v, --verbose                     output COVS and GTS in INFO column (default: false)\n"
     // "      -t, --threads                     number of threads (default: 1)\n"
@@ -111,7 +111,7 @@ int map_kmc(bwaidx_t *idx, char *fpath, const uint k)
 int main_map(int argc, char *argv[])
 {
     int c;
-    uint k, f;
+    uint k = 21, f = 0;
     while ((c = getopt(argc, argv, "k:f:h")) >= 0)
     {
         switch (c)
