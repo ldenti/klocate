@@ -7,7 +7,7 @@ Small bwa wrapper to map (perfectly) a set of kmers against a reference genome.
 git clone --recursive https://github.com/ldenti/kmap.git
 cd kmap/bwa
 make
-cd ../kmc
+cd ../KMC
 make
 cd ..
 make
