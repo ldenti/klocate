@@ -1,0 +1,11 @@
+.vscode/
+*.o
+kmap
+*.amb
+*.ann
+*.bwt
+*.pac
+*.sa
+*.fa
+*.kmc_pre
+*.kmc_suf
