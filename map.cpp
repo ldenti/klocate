@@ -4,9 +4,14 @@
 #include <string>
 #include <cstring>
 #include <vector>
+#include <zlib.h>
 
 #include "bwa.h"
 #include "bwt.h"
+#include "kseq.h"
+#include "kmc_api/kmc_file.h"
+
+KSEQ_INIT(gzFile, gzread)
 
 using namespace std;
 
@@ -14,13 +19,13 @@ static const char *MAP_USAGE_MESSAGE =
     "Usage: kmap map [-h] -k <klen> -f <0|1|2> <reference.fa> <query>\n"
     "\n"
     "      -k, --klen                        k-mer size\n"
-    "      -f, --format                      input file format (0: txt; 1: fa; 2: kmc)\n"
+    "      -f, --format                      input file format (0: txt; 1: fx; 2: kmc)\n"
     "      -h, --help                        display this help and exit\n"
     // "      -v, --verbose                     output COVS and GTS in INFO column (default: false)\n"
     // "      -t, --threads                     number of threads (default: 1)\n"
     "\n";
 
-void search(bwaidx_t *idx, char *kmer, const uint k)
+void search(bwaidx_t *idx, const char *name, char *kmer, const uint k)
 {
     for (uint i = 0; i < k; ++i)
         kmer[i] = nst_nt4_table[(int)kmer[i]];
@@ -38,7 +43,7 @@ void search(bwaidx_t *idx, char *kmer, const uint k)
             pos -= k - 1;
         bns_cnt_ambi(idx->bns, pos, len, &ref_id);
         cout << idx->bns->anns[ref_id].name << "\t" << pos - idx->bns->anns[ref_id].offset << "\t" << pos - idx->bns->anns[ref_id].offset + k << "\t"
-             << "kmer"
+             << name
              << "\t"
              << "0"
              << "\t"
@@ -57,14 +62,47 @@ int map_txt(bwaidx_t *idx, char *fpath, const uint k)
     if (fp == NULL)
         return EXIT_FAILURE;
 
+    int i = 0;
     while ((read = getline(&kmer, &len, fp)) != -1)
-    {
-        printf("Retrieved line of length %zu:\n", read);
-        printf("%s", kmer);
-        search(idx, kmer, k);
-        break;
-    }
+        search(idx, to_string(i++).c_str(), kmer, k);
     fclose(fp);
+
+    free(kmer);
+    return EXIT_SUCCESS;
+}
+
+int map_fx(bwaidx_t *idx, char *fpath, const uint k)
+{
+    gzFile fp = gzopen(fpath, "r");
+    kseq_t *seq = kseq_init(fp);
+    int l;
+    while ((l = kseq_read(seq)) >= 0)
+        search(idx, seq->name.s, seq->seq.s, k);
+    kseq_destroy(seq);
+    gzclose(fp);
+    return EXIT_SUCCESS;
+}
+
+int map_kmc(bwaidx_t *idx, char *fpath, const uint k)
+{
+
+    CKMCFile kmer_db;
+    if (!kmer_db.OpenForListing(fpath))
+    {
+        cerr << "Unable to open kmer database" << endl;
+        return EXIT_FAILURE;
+    }
+    uint32 klen, mode, min_counter, pref_len, sign_len, min_c, counter;
+    uint64 tot_kmers, max_c;
+    kmer_db.Info(klen, mode, min_counter, pref_len, sign_len, min_c, max_c, tot_kmers);
+    CKmerAPI kmer_obj(klen);
+    char *kmer = (char *)malloc(sizeof(char) * (k + 1));
+    int i = 0;
+    while (kmer_db.ReadNextKmer(kmer_obj, counter))
+    {
+        kmer_obj.to_string(kmer);
+        search(idx, to_string(i++).c_str(), kmer, k);
+    }
 
     free(kmer);
     return EXIT_SUCCESS;
@@ -111,9 +149,9 @@ int main_map(int argc, char *argv[])
     if (f == 0)
         return map_txt(idx, query_path, k);
     else if (f == 1)
-        ; // return map_fq(idx, query_path, k);
+        return map_fx(idx, query_path, k);
     else if (f == 2)
-        ; // return map_kmc(idx, query_path, k);
+        return map_kmc(idx, query_path, k);
     else
     {
         cerr << "Unknown file format" << endl;
