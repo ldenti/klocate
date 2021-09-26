@@ -1,6 +1,6 @@
 # kmap
 
-Small [bwa](https://github.com/lh3/bwa) wrapper to map (perfectly) a set of kmers against a reference genome. For each kmer, `kmap` searches it (full and perfect match) in the bwa index and outputs all positions the kmer maps to.
+Standalone tool based on the [bwa](https://github.com/lh3/bwa) index to locate a set of kmers along a reference genome. `kmap` searches each kmer (full and perfect match) in the index and outputs all positions the kmer maps to (output to sdtout in bed format).
 
 ### Download and installation
 ```
@@ -40,6 +40,8 @@ kmap map -h
 
 ### TODO
 * extensive experimental evaluation
+* kmer sequence in output bed
+* option to map (k-1)-mers
 * verbose mode
 * test a different index (?)
 * multithreading (?)
