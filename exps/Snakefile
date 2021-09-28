@@ -6,7 +6,7 @@ SAMPLE = config["fq"]
 ODIR = os.getcwd()
 THREADS = workflow.cores
 
-KLOCATE_BIN="/pasteur/sonic/homes/ldenti/code/kmap/klocate"
+KLOCATE_BIN="/pasteur/sonic/homes/ldenti/code/klocate/klocate"
 
 nrep = 1
 
@@ -69,5 +69,5 @@ rule klocate_locate:
     benchmark: repeat(pjoin(ODIR, "klocate", "k{k}.bench"), nrep)
     shell:
         """
-        {KLOCATE_BIN} map -k {params.k} -f 1 {input.fa} {input.kmers} > {output.bed}
+        {KLOCATE_BIN} find -k {params.k} -f 1 {input.fa} {input.kmers} > {output.bed}
         """
