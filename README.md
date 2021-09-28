@@ -4,8 +4,8 @@ Standalone tool based on the [bwa](https://github.com/lh3/bwa) index to locate a
 
 ### Download and installation
 ```
-git clone --recursive https://github.com/ldenti/kmap.git
-cd kmap/bwa
+git clone --recursive https://github.com/ldenti/klocate.git
+cd klocate/bwa
 make
 cd ../KMC
 make
