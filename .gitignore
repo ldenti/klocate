@@ -11,3 +11,4 @@ klocate
 *.kmc_suf
 *.fai
 *.bed
+.snakemake/

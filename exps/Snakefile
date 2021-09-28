@@ -1,0 +1,73 @@
+import os
+from os.path import join as pjoin
+
+REF = config["fa"]
+SAMPLE = config["fq"]
+ODIR = os.getcwd()
+THREADS = workflow.cores
+
+KLOCATE_BIN="/pasteur/sonic/homes/ldenti/code/kmap/klocate"
+
+nrep = 1
+
+rule run:
+    input:
+        expand(pjoin(ODIR, "klocate", "k{k}.bed"),
+               k = [13, 17, 23, 31, 43])
+
+rule kmc:
+    input:
+        fq = SAMPLE
+    output:
+        pjoin(ODIR, "kmc", "k{k}.kmc_pre")
+    params:
+        k = "{k}",
+        kmc_prefix = pjoin(ODIR, "kmc", "k{k}"),
+        kmc_tmp = pjoin(ODIR, "kmc", "k{k}-tmp")
+    threads: THREADS
+    shell:
+        """
+        mkdir -p {params.kmc_tmp}
+        kmc -t{threads} -k{params.k} -ci1 -fm {input.fq} {params.kmc_prefix} {params.kmc_tmp}
+        rm -rf {params.kmc_tmp}
+        """
+
+rule kmc_to_fa:
+    input:
+        pjoin(ODIR, "kmc", "k{k}.kmc_pre")
+    output:
+        fa = pjoin(ODIR, "kmc", "k{k}.fa")
+    params:
+        kmc_prefix = pjoin(ODIR, "kmc", "k{k}"),
+        txt = pjoin(ODIR, "kmc", "k{k}.dump.txt")
+    shell:
+        """
+        kmc_tools transform {params.kmc_prefix} dump {params.txt}
+        i=0 ; while read line ; do echo ">${{i}}\n${{line}}" ; i=$((i+1)) ; done < {params.txt} > {output.fa}
+        """
+
+rule klocate_index:
+    input:
+        REF
+    output:
+        REF + ".sa"
+    shell:
+        """
+        {KLOCATE_BIN} index {input}
+        """
+
+rule klocate_locate:
+    input:
+        fa = REF,
+        index = REF + ".sa",
+        kmers = pjoin(ODIR, "kmc", "k{k}.fa")
+    output:
+        bed = pjoin(ODIR, "klocate", "k{k}.bed")
+    params:
+        k = "{k}"
+    threads: 1
+    benchmark: repeat(pjoin(ODIR, "klocate", "k{k}.bench"), nrep)
+    shell:
+        """
+        {KLOCATE_BIN} map -k {params.k} -f 1 {input.fa} {input.kmers} > {output.bed}
+        """
