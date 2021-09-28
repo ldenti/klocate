@@ -1,6 +1,6 @@
 .vscode/
 *.o
-kmap
+klocate
 *.amb
 *.ann
 *.bwt
@@ -9,3 +9,5 @@ kmap
 *.fa
 *.kmc_pre
 *.kmc_suf
+*.fai
+*.bed

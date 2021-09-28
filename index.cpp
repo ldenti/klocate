@@ -6,7 +6,7 @@
 using namespace std;
 
 static const char *INDEX_USAGE_MESSAGE =
-    "Usage: kmap index [-h] <reference.fa>\n"
+    "Usage: klocate index [-h] <reference.fa>\n"
     "\n"
     "      -h, --help                        display this help and exit\n"
     // "      -v, --verbose                     output COVS and GTS in INFO column (default: false)\n"

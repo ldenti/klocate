@@ -4,11 +4,11 @@
 using namespace std;
 
 int main_index(int argc, char *argv[]);
-int main_map(int argc, char *argv[]);
+int main_find(int argc, char *argv[]);
 
 int main_usage()
 {
-    cerr << "Usage:\tkmap [index|map] -h" << endl;
+    cerr << "Usage:\tklocate [index|find] -h" << endl;
     return 1;
 }
 
@@ -19,8 +19,8 @@ int main(int argc, char *argv[])
 
     if (strcmp(argv[1], "index") == 0)
         return main_index(argc - 1, argv + 1);
-    else if (strcmp(argv[1], "map") == 0)
-        return main_map(argc - 1, argv + 1);
+    else if (strcmp(argv[1], "find") == 0)
+        return main_find(argc - 1, argv + 1);
     else
         return main_usage();
 }

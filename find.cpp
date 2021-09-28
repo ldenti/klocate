@@ -15,8 +15,8 @@ KSEQ_INIT(gzFile, gzread)
 
 using namespace std;
 
-static const char *MAP_USAGE_MESSAGE =
-    "Usage: kmap map [-h] -k <klen> -f <0|1|2> <reference.fa> <query>\n"
+static const char *FIND_USAGE_MESSAGE =
+    "Usage: klocate find [-h] -k <klen> -f <0|1|2> <reference.fa> <query>\n"
     "\n"
     "      -k, --klen                        k-mer size (default: 23)\n"
     "      -f, --format                      input file format (0: txt mode; 1: fx mode; 2: kmc mode; default: 0)\n"
@@ -53,7 +53,7 @@ void search(bwaidx_t *idx, const char *name, char *kmer, const uint k)
     free(sa_end);
 }
 
-int map_txt(bwaidx_t *idx, char *fpath, const uint k)
+int find_txt(bwaidx_t *idx, char *fpath, const uint k)
 {
     FILE *fp;
     char *kmer = (char *)malloc(sizeof(char) * (k + 1));
@@ -73,7 +73,7 @@ int map_txt(bwaidx_t *idx, char *fpath, const uint k)
     return EXIT_SUCCESS;
 }
 
-int map_fx(bwaidx_t *idx, char *fpath, const uint k)
+int find_fx(bwaidx_t *idx, char *fpath, const uint k)
 {
     gzFile fp = gzopen(fpath, "r");
     kseq_t *seq = kseq_init(fp);
@@ -85,7 +85,7 @@ int map_fx(bwaidx_t *idx, char *fpath, const uint k)
     return EXIT_SUCCESS;
 }
 
-int map_kmc(bwaidx_t *idx, char *fpath, const uint k)
+int find_kmc(bwaidx_t *idx, char *fpath, const uint k)
 {
 
     CKMCFile kmer_db;
@@ -110,7 +110,7 @@ int map_kmc(bwaidx_t *idx, char *fpath, const uint k)
     return EXIT_SUCCESS;
 }
 
-int main_map(int argc, char *argv[])
+int main_find(int argc, char *argv[])
 {
     int c;
     uint k = 21, f = 0;
@@ -125,16 +125,16 @@ int main_map(int argc, char *argv[])
             f = atoi(optarg);
             break;
         case 'h':
-            cerr << MAP_USAGE_MESSAGE;
+            cerr << FIND_USAGE_MESSAGE;
             return 0;
         default:
-            cerr << MAP_USAGE_MESSAGE;
+            cerr << FIND_USAGE_MESSAGE;
             return 1;
         }
     }
     if (argc - optind < 2)
     {
-        cerr << MAP_USAGE_MESSAGE;
+        cerr << FIND_USAGE_MESSAGE;
         return 1;
     }
     char *fa_path = argv[optind++];
@@ -149,11 +149,11 @@ int main_map(int argc, char *argv[])
     cerr << "Index load." << endl;
 
     if (f == 0)
-        return map_txt(idx, query_path, k);
+        return find_txt(idx, query_path, k);
     else if (f == 1)
-        return map_fx(idx, query_path, k);
+        return find_fx(idx, query_path, k);
     else if (f == 2)
-        return map_kmc(idx, query_path, k);
+        return find_kmc(idx, query_path, k);
     else
     {
         cerr << "Unknown file format" << endl;
