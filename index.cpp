@@ -44,5 +44,7 @@ int main_index(int argc, char *argv[])
 
     bwa_idx_build(fa_path, prefix, algo_type, block_size);
 
+    free(prefix);
+
     return 0;
 }

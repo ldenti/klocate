@@ -49,6 +49,8 @@ void search(bwaidx_t *idx, const char *name, char *kmer, const uint k)
              << "\t"
              << "+-"[is_rev] << endl;
     }
+    free(sa_begin);
+    free(sa_end);
 }
 
 int map_txt(bwaidx_t *idx, char *fpath, const uint k)
