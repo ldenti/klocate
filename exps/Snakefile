@@ -8,12 +8,17 @@ THREADS = workflow.cores
 
 KLOCATE_BIN="/pasteur/sonic/homes/ldenti/code/klocate/klocate"
 
+Ks = [31] # [13, 17, 23, 31, 43]
 nrep = 1
 
 rule run:
     input:
         expand(pjoin(ODIR, "klocate", "k{k}.bed"),
-               k = [13, 17, 23, 31, 43])
+               k = Ks),
+        expand(pjoin(ODIR, "fastmap", "k{k}.txt"),
+               k = Ks),
+        expand(pjoin(ODIR, "burst", "k{k}.txt"),
+               k = Ks)
 
 rule kmc:
     input:
@@ -43,7 +48,7 @@ rule kmc_to_fa:
     shell:
         """
         kmc_tools transform {params.kmc_prefix} dump {params.txt}
-        i=0 ; while read line ; do echo ">${{i}}\n${{line}}" ; i=$((i+1)) ; done < {params.txt} > {output.fa}
+        i=0 ; cut -f 1 {params.txt} | while read line ; do echo ">$i\n$line" ; i=$((i+1)) ; done > {output.fa}
         """
 
 rule klocate_index:
@@ -70,4 +75,48 @@ rule klocate_locate:
     shell:
         """
         {KLOCATE_BIN} find -k {params.k} -f 1 {input.fa} {input.kmers} > {output.bed}
+        """
+
+rule bwa_fastmap:
+    input:
+        fa = REF,
+        index = REF + ".sa",
+        kmers = pjoin(ODIR, "kmc", "k{k}.fa")
+    output:
+        txt = pjoin(ODIR, "fastmap", "k{k}.txt")
+    params:
+        k = "{k}"
+    threads: 1
+    benchmark: repeat(pjoin(ODIR, "fastmap", "k{k}.bench"), nrep)
+    shell:
+        """
+        bwa fastmap -l {params.k} -w 1000000 {input.fa} {input.kmers} > {output.txt}
+        """
+
+# 43 is hardcoded
+rule burst_index:
+    input:
+        fa = REF
+    output:
+        edx = REF + ".edx",
+        acx = REF + ".acx"
+    benchmark: pjoin(ODIR, "burst", "index.bench")
+    threads: 4
+    shell:
+        """
+        burst_linux_DB15 -t {threads} -r {input.fa} -d DNA 43 -o {output.edx} -a {output.acx} -i 1.00 -s
+        """
+
+rule burst_align:
+    input:
+        edx = REF + ".edx",
+        acx = REF + ".acx",
+        kmers = pjoin(ODIR, "kmc", "k{k}.fa")
+    output:
+        txt = pjoin(ODIR, "burst", "k{k}.txt")
+    threads: 4
+    benchmark: pjoin(ODIR, "burst", "k{k}.bench")
+    shell:
+        """
+        burst_linux_DB15 -t {threads} -fr -q {input.kmers} -a {input.acx} -r {input.edx} -m ALLPATHS -o {output.txt}
         """
