@@ -38,10 +38,15 @@ void search(bwaidx_t *idx, const char *name, char *kmer, const uint k)
     int len = k, is_rev, ref_id;
     for (uint i = *sa_begin; i <= *sa_end; ++i)
     {
+        // i should not be 0 but it happens sometimes
+        if (i == 0)
+            continue;
         pos = bns_depos(idx->bns, bwt_sa(idx->bwt, i), &is_rev);
         if (is_rev)
             pos -= k - 1;
         bns_cnt_ambi(idx->bns, pos, len, &ref_id);
+        // if (pos - idx->bns->anns[ref_id].offset + k >= idx->bns->anns[ref_id].len)
+        //     continue;
         cout << idx->bns->anns[ref_id].name << "\t" << pos - idx->bns->anns[ref_id].offset << "\t" << pos - idx->bns->anns[ref_id].offset + k << "\t"
              << name
              << "\t"
