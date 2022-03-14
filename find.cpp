@@ -118,7 +118,7 @@ int find_kmc(bwaidx_t *idx, char *fpath, const uint k)
 int main_find(int argc, char *argv[])
 {
     int c;
-    uint k = 21, f = 0;
+    uint k = 23, f = 0;
     while ((c = getopt(argc, argv, "k:f:h")) >= 0)
     {
         switch (c)
