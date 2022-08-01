@@ -36,6 +36,11 @@ void search(bwaidx_t *idx, const char *name, char *kmer, const uint k)
 
     bwtint_t pos;
     int len = k, is_rev, ref_id;
+
+    if (*sa_begin > idx->bwt->seq_len)
+        // kmer not found in the index
+        return;
+
     for (uint i = *sa_begin; i <= *sa_end; ++i)
     {
         // i should not be 0 but it happens sometimes
